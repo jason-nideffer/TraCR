@@ -5,6 +5,7 @@ Authors@R:
     person("Jason", "Nideffer", , "jasonnideffer@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4421-8656"))
 Description: This package can be used alongside Seurat to analyze scTCR data.
+Imports: dplyr, ggplot2, Seurat, tidyr 
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8

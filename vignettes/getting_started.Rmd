@@ -22,7 +22,7 @@ library(TraCR)
 
 ```{r}
 # Load Data
-rna_tcr <- readRDS('Data/rna_tcr_annotated.rds')
+rna_tcr <- readRDS('../../Data/rna_tcr_annotated.rds')
 ```
 
 ```{r}

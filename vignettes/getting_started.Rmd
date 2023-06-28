@@ -14,6 +14,98 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r}
+library(devtools)
+install_github("jason-nideffer/TraCR")
 library(TraCR)
 ```
+
+```{r}
+# Load Data
+rna_tcr <- readRDS('Data/rna_tcr_annotated.rds')
+```
+
+```{r}
+rna_tcr <- calculate_freq(rna_tcr, 
+                          clonotype_column = "CTaa", 
+                          sample_column = "sample", 
+                          identity_column = "cell_type")
+rna_tcr@meta.data
+```
+
+```{r}
+top_expanded_clones <- expanded_clones(rna_tcr, 
+                                       clonotype_column = "CTaa", 
+                                       sample_column = "sample", 
+                                       sample.1 = "3354_T2", 
+                                       sample.2 = "3354_T1", 
+                                       minimum_count = 5, 
+                                       identity = NULL)
+
+top_expanded_clones
+```
+
+```{r}
+cell_order <- c("Th1","Th2","Th17","Treg","Tr1","Tcm","Tfh/cm",
+                "Naive","Polarizing","Activated","Resting")
+
+rna_tcr@meta.data$cell_type <- factor(x = rna_tcr@meta.data$cell_type, levels = cell_order)
+
+cell_colors <- c(
+  "#FF6347",   # Coral
+  "#1E90FF",   # Dodger Blue
+  "#FFC125",   # Gold
+  "#9370DB",   # Medium Purple
+  "#00CED1",   # Light Teal
+  "#008080",   # Teal
+  "#D2B48C",   # Tan
+  "#666666",   # Dark Gray
+  "#999999",   # Medium Gray
+  "#FF69B4",    # Light Magenta
+  "#FFB6C1"   # Light Pink
+)
+```
+
+```{r}
+p <- highlight_clonotype(rna_tcr,
+                     clonotype ="CAFMNWETSGSRLTF_CASSPIGGTGYTF", 
+                     clonotype_column = "CTaa", 
+                     group.by="cell_type", 
+                     other_colors=cell_colors) 
+
+p
+```
+
+```{r}
+clones <- top_expanded_clones$CTaa[1:10]
+clone_colors <- c(
+  "#FF6347",   # Coral
+  "#1E90FF",   # Dodger Blue
+  "#FFC125",   # Gold
+  "#9370DB",   # Medium Purple
+  "#00CED1",   # Light Teal
+  "#008080",   # Teal
+  "#D2B48C",   # Tan
+  "#FF69B4",    # Light Magenta
+  "#FFB6C1",   # Light Pink
+  "black"
+)
+```
+
+```{r}
+p <- highlight_multiple_clonotypes(rna_tcr, 
+                                   clonotypes = clones, 
+                                   clonotype_column = 'CTaa', 
+                                   highlight_colors = clone_colors)
+
+p
+```
+
+```{r}
+clonotype_identity_matrix <- cluster_clonotypes(rna_tcr, 
+                                                clonotype_column = "CTaa", 
+                                                cell_type_column = "cell_type", 
+                                                sample_column = "sample", 
+                                                clone_min = 10)
+```
+

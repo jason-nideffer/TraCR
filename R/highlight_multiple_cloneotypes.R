@@ -15,31 +15,31 @@
 #' @return a ggplot object that is plotted and can be stored/modified
 #' @export
 highlight_multiple_clonotypes <- function(seurat_object, clonotypes, clonotype_column, highlight_colors, other_color='lightgray', highlight_size=1, other_size=0.3, other_alpha=0.1) {
-  
+
   all_clones_data = data.frame()
-  
+
   for (clonotype in clonotypes) {
     clone_data = subset(seurat_object@meta.data, seurat_object@meta.data[clonotype_column]==clonotype)
-    
+
     clone_data = seurat_object@reductions$umap@cell.embeddings[rownames(clone_data),]
     clone_data = as.data.frame(clone_data)
     clone_data$clonotype <- clonotype
-    
+
     all_clones_data <- rbind(clone_data, all_clones_data)
   }
-  
+
   clone_plot <- geom_point(data=all_clones_data, aes(x=UMAP_1, y=UMAP_2,
                                                      group=clonotype, color=clonotype),
                            size=highlight_size, alpha=1)
-  
+
   umap_data <- seurat_object@reductions$umap@cell.embeddings
   umap_data <- as.data.frame(umap_data)
-  
-  umap_plot <- geom_point(data=umap_data, aes(x=UMAP_1, y=UMAP_2), 
+
+  umap_plot <- geom_point(data=umap_data, aes(x=UMAP_1, y=UMAP_2),
                           size=other_size, alpha=other_alpha, color=other_color)
-  
-  plot <- ggplot() + 
-    umap_plot + 
+
+  plot <- ggplot() +
+    umap_plot +
     clone_plot + scale_color_manual(values=highlight_colors, name=clonotype_column) +
     theme(
       # Hide panel borders and remove grid lines
@@ -55,6 +55,6 @@ highlight_multiple_clonotypes <- function(seurat_object, clonotypes, clonotype_c
     ) +
     guides(colour = guide_legend(override.aes = list(alpha=1, size=2)
     ))
-  
+
   return(plot)
 }

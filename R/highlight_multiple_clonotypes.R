@@ -6,7 +6,6 @@
 #'
 #' @param seurat_object seurat object to operate on
 #' @param clonotypes Character vector specifying clonotypes within the 'clonotype_column'
-#' @param clonotype_column Character describing name of column to use for clone calling
 #' @param highlight_colors Vector of colors to use for the highlighted clonotypes
 #' @param other_color Color to use for the non-highlighted cells
 #' @param highlight_size Number representing the point size of the highlighted clonotypes
@@ -14,7 +13,16 @@
 #' @param other_alpha Number (0-1) corresponding to the transparency of non-highlighted cells
 #' @return a ggplot object that is plotted and can be stored/modified
 #' @export
-highlight_multiple_clonotypes <- function(seurat_object, clonotypes, clonotype_column, highlight_colors, other_color='lightgray', highlight_size=1, other_size=0.3, other_alpha=0.1) {
+highlight_multiple_clonotypes <- function(seurat_object,
+                                          clonotypes,
+                                          highlight_colors = seurat_object@misc$colors,
+                                          other_color = 'lightgray',
+                                          highlight_size = 1,
+                                          other_size = 0.3,
+                                          other_alpha = 0.1) {
+
+  # Retrieve clonotype column name
+  clonotype_column <- seurat_object@misc$clonotype_column
 
   all_clones_data = data.frame()
 

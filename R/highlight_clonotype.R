@@ -6,17 +6,32 @@
 #'
 #' @param seurat_object seurat object to operate on
 #' @param clonotype Character specifying a clonotype within the 'clonotype_column'
-#' @param clonotype_column Character describing name of column to use for clone calling
-#' @param group.by Character describing a column to use for the coloring of cells
 #' @param highlight_color Color of the highlighted clonotype
-#' @param other_colors Vector of colors to use for coloring groups in 'group.by'
+#' @param group.by Character describing a column to use for the coloring of cells
+#' @param group.by_colors Vector of colors to use for coloring groups in 'group.by'
+#' @param group.by_order Vector of unique values from group.by column to specify order
 #' @param highlight_size Number representing the point size of the highlighted clonotype
 #' @param other_size Number representing the point size of the non-highlighted cells
 #' @param other_alpha Number (0-1) corresponding to the transparency of non-highlighted cells
 #' @return a ggplot object that is plotted and can be stored/modified
 #' @export
-highlight_clonotype <- function(seurat_object, clonotype, clonotype_column, group.by, highlight_color='black', other_colors, highlight_size=1, other_size=0.3, other_alpha=0.1) {
+highlight_clonotype <- function(seurat_object,
+                                clonotype,
+                                highlight_color = 'black',
+                                group.by = seurat_object@misc$cell_type_column,
+                                group.by_colors = seurat_object@misc$colors,
+                                group.by_order = seurat_object@misc$cell_type_order,
+                                highlight_size = 1,
+                                other_size = 0.3,
+                                other_alpha = 0.1) {
 
+  # Retrieve clonotype column name
+  clonotype_column <- seurat_object@misc$clonotype_column
+
+  # Order the Seurat Object
+  seurat_object@meta.data[,group.by] <- factor(x = seurat_object@meta.data[,group.by], levels = group.by_order)
+
+  # Subset Data
   clone_data = subset(seurat_object@meta.data, seurat_object@meta.data[clonotype_column]==clonotype)
 
   clone_data = seurat_object@reductions$umap@cell.embeddings[rownames(clone_data),]
@@ -34,7 +49,7 @@ highlight_clonotype <- function(seurat_object, clonotype, clonotype_column, grou
                                    size=other_size, alpha=other_alpha)
 
   plot <- ggplot() +
-    umap_plot + scale_color_manual(values=other_colors, name=group.by) +
+    umap_plot + scale_color_manual(values=group.by_colors, name=group.by) +
     clone_plot +
     theme(
       # Hide panel borders and remove grid lines

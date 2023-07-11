@@ -8,7 +8,9 @@ calculate_freq(
   seurat_object,
   clonotype_column,
   sample_column,
-  identity_column = NULL
+  cell_type_column = NULL,
+  subject_column = NULL,
+  exclude_na = TRUE
 )
 }
 \arguments{
@@ -18,7 +20,9 @@ calculate_freq(
 
 \item{sample_column}{Character describing name of column to use for sample discrimination}
 
-\item{identity_column}{Character describing name of column to use for clonotype characterization}
+\item{cell_type_column}{Character describing name of column to use for cell_type identification (could be and annotation or cluster)}
+
+\item{exclude_na}{Boolean; if TRUE (default), cells without clonotype designation will be excluded from frequency calculations}
 }
 \value{
 seurat_object with meta data updated to include frequency data

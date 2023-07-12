@@ -171,6 +171,19 @@ p <- plot_freq(rna_tcr,
 p
 ```
 
+The data shown above can also be visualized as a circular barplot if `plot.type` is set to "circularbar".
+
+```{r, fig.height=4, fig.width=7}
+p <- plot_freq(rna_tcr, 
+          clonotypes <- top_20_expanded_T1_to_T2,
+          samples <- c("3354_T1","3354_T2","3354_T3","3354_T4","3354_T5","3354_T6"),
+          plot.type = "circularbar"
+          )
+
+p
+```
+
+
 With the `clonotype_identity_matrix` function, you can perform hierarchical clustering on clonotypes based on their phenotypic composition. This can be used to identify clones with a preference for a given cell subset and determine the clonal relationship between different cell subsets.
 
 ```{r, fig.height=6, fig.width=6}

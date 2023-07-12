@@ -204,6 +204,9 @@ plot_freq <- function(seurat_object,
         alpha=1
       ) +
 
+      xlab("") +
+      ylab("Frequency") +
+
       # Set color
       if (is.null(cell_type_colors) == FALSE) {
         scale_fill_manual(values=cell_type_colors)

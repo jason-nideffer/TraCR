@@ -141,13 +141,13 @@ plot_freq <- function(seurat_object,
       geom_flow(aes_string(fill = factor(meta[,clonotype_column])), stat = "alluvium",
                 lode.guidance = "frontback", alpha=0.5) +
 
-      scale_fill_manual(values = palette) +
+      scale_fill_manual(values = palette, breaks = cell_type_order) +
 
       geom_stratum(color=NA) +
 
-      theme(legend.position = "none", panel.grid.major = element_blank(),
+      theme(legend.position = NULL, panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),panel.background = element_blank(),
-            axis.line = element_line(colour = "black"), axis.text = element_text(size = 15),
+            axis.line = element_line(colour = "black"), axis.text = element_text(size = 12),
             axis.title = element_text(size=15)) +
 
       xlab("") +

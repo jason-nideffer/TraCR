@@ -1,5 +1,5 @@
 ---
-title: "getting_started"
+title: "Getting Started"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{getting_started}
@@ -14,12 +14,13 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Getting Started
 
 Install TraCR from GitHub.
-```{r}
+```{r echo = T, results = 'hide'}
+library(devtools)
 install_github("jason-nideffer/TraCR")
 library(TraCR)
+library(ggplot2)
 ```
 
 Loading in example seurat object `rna_tcr`. This seurat object has already been annotated, so there is a column (`CTaa`) in the metadata that specifies the TCR sequences of the cell (which are used to identify clones). There are also columns that specify what sample the cell is from (`sample`) and from which patient the sample was derived (`cohortid`). Finally, cells have been annotated according to their identity (`cell_type`).
@@ -55,38 +56,46 @@ After running `calculate_freq`, you will notice that new columns have been added
 
 
 ```{r}
-rna_tcr@meta.data[, c(26:30)]
+rna_tcr@meta.data[c(1:10), c(26:30)]
 ```
 
 You can use the `expanded_clones` function to return a dataframe of clonotypes that are sorted by how expanded they are within a given sample. 
 
 ```{r}
-expanded_clones(rna_tcr, sample.1 = "3354_T1")
+expanded_3354_T1 <- expanded_clones(rna_tcr, sample.1 = "3354_T1")
+
+expanded_3354_T1[c(1:10),]
 ```
 
 You can also provide a vector of multiple samples from the same subject to sort clones based on their average frequency across multiple samples.
 
 ```{r}
-expanded_clones(rna_tcr, sample.1 = c("3354_T1","3354_T2","3354_T3","3354_T4","3354_T5","3354_T6"))
+expanded_3354 <- expanded_clones(rna_tcr, sample.1 = c("3354_T1","3354_T2","3354_T3","3354_T4","3354_T5","3354_T6"))
+
+expanded_3354[c(1:10),]
 ```
 
 By providing inputs for `sample.1` and `sample.2`, you can calculate expansion between samples. Clonotypes will be primarily sorted based on fold-change in frequency in `sample.1` compared to `sample.2` and secondarily sorted based on the difference in frequency between the samples. `minimum_count` can be provided to exclude clonotypes with low abundance across the included samples. (This can be relevant since a clone may only be observed 1 time in `sample.1` and 0 times in `sample.2`. This is technically "infinite" expansion by fold-change, but you may have low confidence in this measurement or doubt its biological significance and therefore want to exclude it.)
 
 ```{r}
-expanded_clones(rna_tcr, 
-                sample.1 = "3354_T2",
-                sample.2 = "3354_T1",
-                minimum_count = 5)
+expanded_T1_to_T2 <- expanded_clones(rna_tcr, 
+                                     sample.1 = "3354_T2",
+                                     sample.2 = "3354_T1",
+                                     minimum_count = 5)
+
+expanded_T1_to_T2[c(1:10),]
 ```
 
 You can also provide the `identity` parameter with a value contained within the `cell_type_column` that you specified when running `calculate_freq`. This will narrow the scope of the analysis to only include clonotypes that have a specified `clonotype_identity_mode`. In the example below, we select only clonotypes that are predominately composed of "Th1" cells.  
 
 ```{r}
-expanded_clones(rna_tcr,
-                sample.1 = "3354_T2",
-                sample.2 = "3354_T1",
-                minimum_count = 5,
-                identity = "Th1")
+expanded_Th1_T1_to_T2 <- expanded_clones(rna_tcr,
+                                         sample.1 = "3354_T2",
+                                         sample.2 = "3354_T1",
+                                         minimum_count = 5,
+                                         identity = "Th1")
+
+expanded_Th1_T1_to_T2[c(1:10),]
 ```
 
 # Visualizations
@@ -118,7 +127,7 @@ rna_tcr <- plotting_aesthetics(rna_tcr,
 
 The `highlight_clonotype` function allows you to visualize a single `clonotype` over a Seurat-derived UMAP projection. All cells present in the seurat object will be plotted behind the highlighted `clonotype`. The clonotype in the example below was chosen because it was determined (using the `expanded_clones` function) to be the most expanded Th2 clone across all 6 samples of a given subject.
 
-```{r}
+```{r, fig.height=4, fig.width=6}
 expanded_th2 <- expanded_clones(rna_tcr, 
                                 sample.1 = c("3354_T1","3354_T2","3354_T3","3354_T4","3354_T5","3354_T6"),
                                 identity = "Th2")
@@ -133,8 +142,8 @@ p
 
 The `highlight_muliple_clonotypes` function allows you to visualize multiple different clonotypes on the same umap. In the example below, we choose the top-10 most abundant Th2 clonotypes across all 6 samples of a given subject.
 
-```{r}
-top_10_th2 <- expanded_th2$CTaa[1:50]
+```{r, fig.height=4, fig.width=7}
+top_10_th2 <- expanded_th2$CTaa[1:10]
 
 p <- highlight_multiple_clonotypes(rna_tcr, 
                                    clonotypes = top_10_th2)
@@ -145,7 +154,7 @@ p + theme(legend.text=element_text(size=rel(0.5)))
 
 The `plot_freq` function allows you to trace clones through multiple samples and observe if/how their cell identity may change. In the example below, we first identify the top-20 clonotypes that expand the most from sample '3354_T1' to sample '3354_T2'. By assessing the frequencies of these clonotypes across six longitudinally collected samples from the same subject, we can observe what happens to these clones after their initial expansion.
 
-```{r}
+```{r, fig.height=4, fig.width=7}
 expanded_T1_to_T2 <- expanded_clones(rna_tcr, 
                                      sample.1 = "3354_T2",
                                      sample.2 = "3354_T1",
@@ -164,6 +173,6 @@ p
 
 With the `clonotype_identity_matrix` function, you can perform hierarchical clustering on clonotypes based on their phenotypic composition. This can be used to identify clones with a preference for a given cell subset and determine the clonal relationship between different cell subsets.
 
-```{r}
+```{r, fig.height=6, fig.width=6}
 clonotype_identity_matrix <- cluster_clonotypes(rna_tcr, minimum_count = 10)
 ```
